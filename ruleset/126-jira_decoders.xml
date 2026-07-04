@@ -1,0 +1,9 @@
+<!--
+  Jira audit events decoder
+  Consumes the flat jira_* JSON records emitted by
+  /var/ossec/integrations/jira_events.py
+-->
+<decoder name="jira-json">
+  <prematch>"jira_integration":"jira"</prematch>
+  <plugin_decoder>JSON_Decoder</plugin_decoder>
+</decoder>

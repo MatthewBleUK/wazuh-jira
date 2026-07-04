@@ -1,0 +1,158 @@
+<!--
+  Jira audit events rules
+  Source: /var/ossec/integrations/jira_events.py -> jira-json decoder
+  Rule ID range: 126000-126099
+
+  Coverage model:
+    * BASE 126000 matches every Jira audit event at level 3.
+    * LAYER 1 rules match high-signal summaries/categories directly.
+    * LAYER 2 category/config tiers give useful severity to the remaining
+      long tail of Jira administrative audit records.
+    * LAYER 3 correlation catches repeated export/backup activity.
+
+  No rule uses level 0, so ingested events are not silently dropped.
+-->
+<group name="jira,">
+
+  <!-- ========================================================= -->
+  <!-- BASE - matches every Jira audit event                     -->
+  <!-- ========================================================= -->
+  <rule id="126000" level="3">
+    <field name="jira_integration">^jira$</field>
+    <description>Jira audit event: $(jira_summary)</description>
+    <group>jira,audit,</group>
+  </rule>
+
+  <!-- ========================================================= -->
+  <!-- LAYER 1 - high-signal audit detections                    -->
+  <!-- ========================================================= -->
+
+  <!-- Authentication -->
+  <rule id="126010" level="8">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(login|log in|sign[_ -]?in|authentication).*fail|fail.*(login|log in|sign[_ -]?in|authentication)</field>
+    <description>Jira failed authentication: $(jira_summary) by $(jira_author_key)</description>
+    <group>jira,authentication,authentication_failed,</group>
+  </rule>
+
+  <rule id="126011" level="4">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(login|log in|sign[_ -]?in).*(success|succeeded|successful)</field>
+    <description>Jira successful authentication: $(jira_summary) by $(jira_author_key)</description>
+    <group>jira,authentication,authentication_success,</group>
+  </rule>
+
+  <!-- Authentication and password policy changes -->
+  <rule id="126020" level="10">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(password|authentication|sso|saml|oauth|two[_ -]?step|2fa|mfa).*(chang|updat|disab|enab|config|reset|remov)</field>
+    <description>Jira authentication or password policy changed: $(jira_summary)</description>
+    <group>jira,authentication,policy,</group>
+  </rule>
+
+  <!-- Admin and permission changes -->
+  <rule id="126030" level="12">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(global permission|jira administrator|system administrator|admin permission|site admin|administrator).*(grant|add|assign|giv|created)</field>
+    <description>Jira administrative privilege granted: $(jira_summary)</description>
+    <group>jira,privilege_escalation,</group>
+  </rule>
+
+  <rule id="126031" level="10">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(permission scheme|issue security scheme|security scheme|global permission|permission).*(chang|updat|delet|remov|add|grant|assign)</field>
+    <description>Jira permission or security scheme changed: $(jira_summary)</description>
+    <group>jira,policy,access_control,</group>
+  </rule>
+
+  <rule id="126032" level="8">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(project role|role actor|role membership).*(add|remov|grant|assign|delet|updat)</field>
+    <description>Jira project role membership changed: $(jira_summary)</description>
+    <group>jira,account_manipulation,</group>
+  </rule>
+
+  <!-- Apps, integrations, webhooks, and tokens -->
+  <rule id="126040" level="10">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(app|add-on|addon|plugin|webhook|oauth|application link|api token|personal access token).*(install|uninstall|enab|disab|creat|delet|updat|chang|add|remov|revok)</field>
+    <description>Jira app/integration trust changed: $(jira_summary)</description>
+    <group>jira,third_party,policy,</group>
+  </rule>
+
+  <!-- Users and groups -->
+  <rule id="126050" level="6">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)user.*(creat|delet|deactivat|activat|renam|password|invited|created)|account.*(creat|delet|deactivat|activat)</field>
+    <description>Jira user lifecycle change: $(jira_summary)</description>
+    <group>jira,account_manipulation,</group>
+  </rule>
+
+  <rule id="126051" level="6">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(group|group membership).*(creat|delet|add|remov|renam|chang)|user.*(added to group|removed from group)</field>
+    <description>Jira group or group membership changed: $(jira_summary)</description>
+    <group>jira,account_manipulation,</group>
+  </rule>
+
+  <!-- Project and configuration changes -->
+  <rule id="126060" level="6">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(workflow|field configuration|custom field|screen|issue type|notification scheme|priority scheme|resolution|status|component|version).*(creat|delet|chang|updat|add|remov|publish)</field>
+    <description>Jira project/configuration changed: $(jira_summary)</description>
+    <group>jira,configuration,</group>
+  </rule>
+
+  <rule id="126061" level="10">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(project|board|filter).*(delet|archiv|trash|purge)|deleted.*(project|board|filter)</field>
+    <description>Jira destructive project object change: $(jira_summary)</description>
+    <group>jira,configuration,impact,</group>
+  </rule>
+
+  <!-- Export, backup, and restore -->
+  <rule id="126070" level="10">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(export|backup|restore|import|download).*(start|creat|run|complete|finish|download)|data export|xml backup</field>
+    <description>Jira export/backup/restore activity: $(jira_summary) by $(jira_author_key)</description>
+    <group>jira,exfiltration,backup,</group>
+  </rule>
+
+  <!-- Audit logging configuration tampering -->
+  <rule id="126080" level="8">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)(audit|auditing|audit log).*(chang|config|disab|enab|retention|level|coverage|export|delete)</field>
+    <description>Jira audit logging configuration or access event: $(jira_summary)</description>
+    <group>jira,audit,policy,</group>
+  </rule>
+
+  <!-- ========================================================= -->
+  <!-- LAYER 2 - category tiers                                  -->
+  <!-- ========================================================= -->
+
+  <rule id="126090" level="10">
+    <if_sid>126000</if_sid>
+    <field name="jira_category" type="pcre2">(?i)(permission|security|authentication|user management|group management|system|global|application access)</field>
+    <description>Jira security/identity category event [$(jira_category)]: $(jira_summary)</description>
+    <group>jira,policy,access_control,</group>
+  </rule>
+
+  <rule id="126091" level="6">
+    <if_sid>126000</if_sid>
+    <field name="jira_category" type="pcre2">(?i)(project|workflow|field|screen|scheme|notification|issue|board|filter)</field>
+    <description>Jira administrative category event [$(jira_category)]: $(jira_summary)</description>
+    <group>jira,configuration,</group>
+  </rule>
+
+  <!-- ========================================================= -->
+  <!-- LAYER 3 - correlation                                     -->
+  <!-- ========================================================= -->
+
+  <rule id="126081" level="12" frequency="5" timeframe="300" ignore="600">
+    <if_matched_sid>126070</if_matched_sid>
+    <same_field>jira_author_key</same_field>
+    <description>Jira DLP: repeated export/backup activity by $(jira_author_key)</description>
+    <group>jira,exfiltration,</group>
+  </rule>
+
+</group>

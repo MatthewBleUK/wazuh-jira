@@ -1,0 +1,24 @@
+<!--
+  Add these two blocks to /var/ossec/etc/ossec.conf, inside <ossec_config>.
+  The command wodle runs the poller every 5 minutes; the localfile block
+  ingests the JSON lines it writes.
+
+  IMPORTANT: edit ossec.conf with sed or an editor that preserves ownership
+  (wazuh:wazuh). Some tools rewrite it as root:root, after which analysisd
+  cannot read it and fails.
+-->
+
+<wodle name="command">
+  <disabled>no</disabled>
+  <tag>jira-events</tag>
+  <command>/var/ossec/integrations/jira_events.py</command>
+  <interval>5m</interval>
+  <ignore_output>yes</ignore_output>
+  <run_on_start>yes</run_on_start>
+  <timeout>120</timeout>
+</wodle>
+
+<localfile>
+  <log_format>json</log_format>
+  <location>/var/ossec/logs/jira/jira-events.json</location>
+</localfile>
