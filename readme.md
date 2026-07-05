@@ -184,24 +184,64 @@ All settings live in `/var/ossec/etc/jira-events.env`.
 
 ## Ruleset Design
 
-Rule IDs are `126000-126099`.
+Rule IDs are `126000-126099`, aligned with the Confluence `127xxx` ruleset.
+Within each family the most specific rule appears first in the file, because
+sibling rules under `126000` are evaluated in file order and the first match
+wins. Correlation rules use `frequency="N"`, which fires on the (N+2)th
+matching event within the timeframe.
 
 | Rule | Level | Meaning |
 |---|---:|---|
 | `126000` | 3 | Base rule for every Jira audit event. |
-| `126010` / `126011` | 8 / 4 | Failed/successful authentication. |
-| `126020` | 10 | Authentication, SSO, MFA, or password policy changed. |
-| `126030` | 12 | Administrative privilege granted. |
-| `126031` | 10 | Permission or issue security scheme changed. |
-| `126032` | 8 | Project role membership changed. |
-| `126040` | 10 | App, plugin, webhook, OAuth, or token trust changed. |
-| `126050` / `126051` | 6 / 6 | User and group lifecycle changes. |
-| `126060` | 6 | Workflow, field, screen, issue type, or scheme changed. |
-| `126061` | 10 | Project, board, or filter deleted/archived. |
-| `126070` | 10 | Export, backup, restore, import, or download activity. |
-| `126080` | 8 | Audit logging configuration or audit access event. |
-| `126090` / `126091` | 10 / 6 | Security/identity and administrative category tiers. |
-| `126081` | 12 | Repeated export/backup activity by the same actor in 5 minutes. |
+| `126010` | 8 | Failed secure admin (websudo) authentication. |
+| `126011` | 9 | Secure admin (websudo) access granted. |
+| `126012` | 5 | Single failed authentication. |
+| `126013` | 10 | 5 failed authentications by the same account in 4 minutes. |
+| `126014` | 10 | 7 failed authentications from the same source IP in 4 minutes. |
+| `126015` | 3 | Successful login/logout (kept low, out of the fallback tier). |
+| `126016` | 11 | MFA/2FA/SSO/SAML disabled or removed. |
+| `126017` | 10 | Other authentication/password configuration changes. |
+| `126020` | 12 | Jira/system administrator privilege or global permission granted. |
+| `126021` | 12 | User added to a group whose name contains `admin` (structured). |
+| `126022` | 7 | Administrative privilege removed. |
+| `126023` | 11 | Public signup / anonymous / login-free exposure enabled. |
+| `126024` | 5 | Exposure removed or restricted. |
+| `126025` | 8 | Customer portal / help center / knowledge base access changed. |
+| `126026` | 6 | Permission/issue security scheme reduced. |
+| `126027` | 10 | Permission/issue security scheme changed or broadened. |
+| `126028` | 8 | Application access changed. |
+| `126029` | 6 | Project role membership changed. |
+| `126030` | 10 | 5 permission/scheme changes by the same actor in 10 minutes. |
+| `126031` | 10 | 5 public/customer access changes by the same actor in 10 minutes. |
+| `126040` | 10 | App/plugin/webhook/app link/DVCS trust added or OAuth authorized. |
+| `126041` | 6 | App/plugin/webhook removed, disabled, or OAuth revoked. |
+| `126042` | 10 | API/personal access token created. |
+| `126043` | 5 | API/personal access token revoked. |
+| `126045` | 6 | Group or group membership changed. |
+| `126046` | 5 | User lifecycle change (create/invite/deactivate/delete). |
+| `126050` | 6 | Workflow changed or published. |
+| `126051` | 5 | Scheme/field/screen/version/component configuration change. |
+| `126052` | 6 | Board, filter, or dashboard deleted. |
+| `126053` | 9 | Project deleted or archived. |
+| `126054` | 6 | Project created, restored, or updated. |
+| `126055` | 7 | Dark feature or application property changed. |
+| `126056` | 6 | Mail channel/server configuration changed. |
+| `126060` | 11 | Audit log configuration/retention/coverage changed or purged. |
+| `126061` | 7 | Audit log exported. |
+| `126062` | 5 | Audit log viewed or searched. |
+| `126070` | 12 | Full data export, XML backup, or backup download. |
+| `126071` | 8 | Assets/Insight object or schema export. |
+| `126072` | 8 | Restore or import activity. |
+| `126073` | 6 | Issue/object export (CSV/HTML/Excel, archived issues). |
+| `126074` | 12 | 5 export/backup events by the same actor in 10 minutes. |
+| `126090` | 6 | Fallback: security/identity audit categories. |
+| `126091` | 5 | Fallback: remaining administrative/configuration categories. |
+
+Sample events for `wazuh-logtest` are in `tests/sample-events.jsonl`:
+
+```bash
+sudo /var/ossec/bin/wazuh-logtest < tests/sample-events.jsonl
+```
 
 ## Operational Notes
 

@@ -1,0 +1,47 @@
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Websudo authentication failed","jira_author_key":"jsmith","jira_src_ip":"203.0.113.10","jira_category":"authentication"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Websudo access granted","jira_author_key":"jsmith","jira_src_ip":"203.0.113.10","jira_category":"authentication"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"User login failed","jira_author_key":"jsmith","jira_src_ip":"203.0.113.10","jira_category":"authentication"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"User logged in","jira_author_key":"jsmith","jira_src_ip":"203.0.113.10","jira_category":"authentication"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Two-step verification disabled","jira_author_key":"jsmith","jira_category":"security"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Password policy updated","jira_author_key":"jsmith","jira_category":"security"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Global permission added","jira_author_key":"jsmith","jira_category":"permissions"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"User added to group","jira_associated_items":"jira-administrators","jira_author_key":"jsmith","jira_category":"group management"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Global permission removed","jira_author_key":"jsmith","jira_category":"permissions"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Public signup enabled","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Public signup disabled","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Customer portal permissions updated","jira_author_key":"jsmith","jira_category":"permissions"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Permission scheme updated","jira_author_key":"jsmith","jira_category":"permissions"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Permission removed from permission scheme","jira_author_key":"jsmith","jira_category":"permissions"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Issue security scheme updated","jira_author_key":"jsmith","jira_category":"permissions"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Application access changed","jira_author_key":"jsmith","jira_category":"application access"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Added user to project role Administrators","jira_author_key":"jsmith","jira_category":"projects"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"App installed","jira_object_name":"Example Marketplace App","jira_author_key":"jsmith","jira_category":"ecosystem"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"App uninstalled","jira_object_name":"Example Marketplace App","jira_author_key":"jsmith","jira_category":"ecosystem"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Webhook created","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Application link created","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Authorized OAuth consumer","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"OAuth consumer revoked","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"API token created","jira_author_key":"jsmith","jira_category":"security"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"API token revoked","jira_author_key":"jsmith","jira_category":"security"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Group created","jira_author_key":"jsmith","jira_category":"group management"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"User created","jira_author_key":"jsmith","jira_category":"user management"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Workflow updated","jira_author_key":"jsmith","jira_category":"workflows"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Custom field created","jira_author_key":"jsmith","jira_category":"fields"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Version deleted from project DEMO","jira_author_key":"jsmith","jira_category":"projects"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Board deleted","jira_author_key":"jsmith","jira_category":"boards"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Project deleted","jira_object_name":"DEMO","jira_author_key":"jsmith","jira_category":"projects"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Project created","jira_object_name":"DEMO","jira_author_key":"jsmith","jira_category":"projects"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Dark feature enabled","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Application property changed","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Outgoing mail disabled","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Audit log retention changed","jira_author_key":"jsmith","jira_category":"auditing"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Audit log exported","jira_author_key":"jsmith","jira_category":"auditing"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Audit log searched","jira_author_key":"jsmith","jira_category":"auditing"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Full data export started","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"XML backup created","jira_author_key":"jsmith","jira_category":"system"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Assets object schema exported","jira_author_key":"jsmith","jira_category":"insight"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Project imported","jira_author_key":"jsmith","jira_category":"projects"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Issues exported to CSV","jira_author_key":"jsmith","jira_category":"issues"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Important announcement issue created","jira_author_key":"jsmith"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Something unrecognized","jira_category":"user management"}
+{"jira_integration":"jira","jira_event_type":"audit","jira_summary":"Something unrecognized","jira_category":"system"}
