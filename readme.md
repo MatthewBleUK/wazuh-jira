@@ -208,11 +208,12 @@ matching event within the timeframe.
 | `126024` | 5 | Exposure removed or restricted. |
 | `126025` | 8 | Customer portal / help center / knowledge base access changed. |
 | `126026` | 6 | Permission/issue security scheme reduced. |
-| `126027` | 10 | Permission/issue security scheme changed or broadened. |
+| `126027` | 10 | Permission/issue security scheme or global permission changed. |
 | `126028` | 8 | Application access changed. |
 | `126029` | 6 | Project role membership changed. |
-| `126030` | 10 | 5 permission/scheme changes by the same actor in 10 minutes. |
-| `126031` | 10 | 5 public/customer access changes by the same actor in 10 minutes. |
+| `126030` | 7 | Generic permission/restriction changed. |
+| `126031` | 10 | 5 permission/scheme changes by the same actor in 10 minutes. |
+| `126032` | 10 | 5 public/customer access changes by the same actor in 10 minutes. |
 | `126040` | 10 | App/plugin/webhook/app link/DVCS trust added or OAuth authorized. |
 | `126041` | 6 | App/plugin/webhook removed, disabled, or OAuth revoked. |
 | `126042` | 10 | API/personal access token created. |
@@ -222,7 +223,7 @@ matching event within the timeframe.
 | `126050` | 6 | Workflow changed or published. |
 | `126051` | 5 | Scheme/field/screen/version/component configuration change. |
 | `126052` | 6 | Board, filter, or dashboard deleted. |
-| `126053` | 9 | Project deleted or archived. |
+| `126053` | 10 | Project deleted or archived. |
 | `126054` | 6 | Project created, restored, or updated. |
 | `126055` | 7 | Dark feature or application property changed. |
 | `126056` | 6 | Mail channel/server configuration changed. |
@@ -237,11 +238,8 @@ matching event within the timeframe.
 | `126090` | 6 | Fallback: security/identity audit categories. |
 | `126091` | 5 | Fallback: remaining administrative/configuration categories. |
 
-Sample events for `wazuh-logtest` are in `tests/sample-events.jsonl`:
-
-```bash
-sudo /var/ossec/bin/wazuh-logtest < tests/sample-events.jsonl
-```
+Severity levels are aligned with the Confluence `127xxx` ruleset so the same
+event class scores the same level in both products.
 
 ## Operational Notes
 

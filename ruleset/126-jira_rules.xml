@@ -30,15 +30,16 @@
     11  MFA/2FA/SSO/SAML disabled, public signup or anonymous/customer
         exposure ENABLED, audit log config/retention/coverage changed
     10  brute-force correlations, auth config changed, permission/issue
-        security scheme changed or broadened, app/webhook/OAuth trust
-        added, API token created, repeated permission or public-access
+        security scheme changed or broadened, global permission changed,
+        project deleted or archived, app/webhook/OAuth trust added,
+        API token created, repeated permission or public-access
         change correlations
-     9  project deleted or archived, websudo/secure admin access granted
+     9  websudo/secure admin access granted
      8  websudo/secure admin login failed, application access changed,
         portal/help center/knowledge base permission changed, Assets
         schema export, restore/import
-     7  admin privilege removed, dark feature or application property
-        changed, audit log exported
+     7  admin privilege removed, generic permission changed, dark feature
+        or application property changed, audit log exported
      6  permission scheme reduced, project role or group membership
         changed, app removed, board/filter deleted, project created,
         workflow changed, mail channel changed, issue/object export,
@@ -184,10 +185,13 @@
     <group>privilege_escalation,account_manipulation,</group>
   </rule>
 
-  <!-- Administrative privilege removed: notable but de-escalatory -->
+  <!-- Administrative privilege removed: notable but de-escalatory.
+       Requires the full word "administrator" (or admin + privilege noun)
+       so "deleted dashboard admin view" style summaries stay in the
+       configuration rules. -->
   <rule id="126022" level="7">
     <if_sid>126000</if_sid>
-    <field name="jira_summary" type="pcre2">(?i)\b(remov\w*|revok\w*|delet\w*|demot\w*)\b.{0,60}\b(system |site |global |jira )?admin(istrator)?s?\b|\badmin(istrator)?s? (permission|privilege|right|role|access)\w*\b.{0,60}\b(remov\w*|revok\w*|delet\w*)\b|\bglobal permissions?\b.{0,50}\b(remov\w*|revok\w*|delet\w*)\b|\b(remov\w*|revok\w*|delet\w*)\b.{0,50}\bglobal permissions?\b|\b(remov\w*|revok\w*)\b.{0,60}\b(jira-administrators|system-administrators|site-admins)\b</field>
+    <field name="jira_summary" type="pcre2">(?i)\b(remov\w*|revok\w*|demot\w*)\b.{0,60}\b((system |site |global |jira )?administrators?|admin(istrator)? (permission|privilege|right|role|access)\w*)\b|\b((system |site |global |jira )?administrators?|admin(istrator)? (permission|privilege|right|role|access)\w*)\b.{0,60}\b(remov\w*|revok\w*|delet\w*|demot\w*)\b|\bglobal permissions?\b.{0,50}\b(remov\w*|revok\w*|delet\w*)\b|\b(remov\w*|revok\w*|delet\w*)\b.{0,50}\bglobal permissions?\b|\b(remov\w*|revok\w*)\b.{0,60}\b(jira-administrators|system-administrators|site-admins)\b</field>
     <description>Jira: administrative privilege removed: $(jira_summary)</description>
     <group>access_control,account_manipulation,</group>
   </rule>
@@ -221,7 +225,7 @@
   <!-- Permission/issue security scheme REDUCED (explicit removal verbs) -->
   <rule id="126026" level="6">
     <if_sid>126000</if_sid>
-    <field name="jira_summary" type="pcre2">(?i)\b(permission|issue security|security) (scheme|level)s?\b.{0,60}\b(remov\w*|revok\w*|delet\w*|restrict\w*)\b|\b(remov\w*|revok\w*|delet\w*|restrict\w*)\b.{0,60}\b(permission|issue security|security) (scheme|level)s?\b|\bpermissions?\b.{0,40}\b(remov\w*|revok\w*)\b|\b(remov\w*|revok\w*)\b.{0,40}\bpermissions?\b</field>
+    <field name="jira_summary" type="pcre2">(?i)\b(permission|issue security|security) (scheme|level)s?\b.{0,60}\b(remov\w*|revok\w*|delet\w*|restrict\w*)\b|\b(remov\w*|revok\w*|delet\w*|restrict\w*)\b.{0,60}\b(permission|issue security|security) (scheme|level)s?\b</field>
     <description>Jira: permission/security scheme reduced: $(jira_summary)</description>
     <group>access_control,policy,jira_perm_change,</group>
   </rule>
@@ -230,8 +234,8 @@
        "updated" summaries land here (higher) by design -->
   <rule id="126027" level="10">
     <if_sid>126000</if_sid>
-    <field name="jira_summary" type="pcre2">(?i)\b(permission|issue security|security) (scheme|level)s?\b.{0,60}\b(add\w*|grant\w*|creat\w*|chang\w*|updat\w*|modif\w*|assign\w*|edit\w*|copi\w*|copy)\b|\b(add\w*|grant\w*|creat\w*|chang\w*|updat\w*|modif\w*|assign\w*)\b.{0,60}\b(permission|issue security|security) (scheme|level)s?\b|\bpermissions?\b.{0,40}\b(add\w*|grant\w*|chang\w*|updat\w*)\b|\b(add\w*|grant\w*|chang\w*|updat\w*)\b.{0,40}\bpermissions?\b</field>
-    <description>Jira: permission/security scheme changed or broadened by $(jira_author_key): $(jira_summary)</description>
+    <field name="jira_summary" type="pcre2">(?i)\b(permission|issue security|security) (scheme|level)s?\b.{0,60}\b(add\w*|grant\w*|creat\w*|chang\w*|updat\w*|modif\w*|assign\w*|edit\w*|copi\w*|copy)\b|\b(add\w*|grant\w*|creat\w*|chang\w*|updat\w*|modif\w*|assign\w*)\b.{0,60}\b(permission|issue security|security) (scheme|level)s?\b|\bglobal permissions?\b.{0,50}\b(chang\w*|updat\w*|modif\w*|edit\w*|set)\b|\b(chang\w*|updat\w*|modif\w*)\b.{0,50}\bglobal permissions?\b</field>
+    <description>Jira: permission/security scheme or global permission changed by $(jira_author_key): $(jira_summary)</description>
     <group>access_control,policy,jira_perm_change,</group>
   </rule>
 
@@ -251,9 +255,18 @@
     <group>account_manipulation,access_control,</group>
   </rule>
 
+  <!-- Generic permission/restriction change: anything the scheme, global
+       permission, portal, and role rules above did not claim -->
+  <rule id="126030" level="7">
+    <if_sid>126000</if_sid>
+    <field name="jira_summary" type="pcre2">(?i)\b(permission|restriction)s?\b.{0,60}\b(chang\w*|updat\w*|grant\w*|add\w*|remov\w*|revok\w*|edit\w*|modif\w*|set)\b|\b(chang\w*|updat\w*|grant\w*|add\w*|remov\w*|revok\w*|edit\w*|modif\w*)\b.{0,60}\b(permission|restriction)s?\b</field>
+    <description>Jira: permission changed: $(jira_summary)</description>
+    <group>access_control,policy,jira_perm_change,</group>
+  </rule>
+
   <!-- Fires on the 5th permission/scheme/app-access change by the same
        actor within 10 minutes -->
-  <rule id="126030" level="10" frequency="3" timeframe="600" ignore="600">
+  <rule id="126031" level="10" frequency="3" timeframe="600" ignore="600">
     <if_matched_group>jira_perm_change</if_matched_group>
     <same_field>jira_author_key</same_field>
     <description>Jira: repeated permission/security scheme changes by $(jira_author_key)</description>
@@ -265,7 +278,7 @@
 
   <!-- Fires on the 5th public/customer access change by the same actor
        within 10 minutes -->
-  <rule id="126031" level="10" frequency="3" timeframe="600" ignore="600">
+  <rule id="126032" level="10" frequency="3" timeframe="600" ignore="600">
     <if_matched_group>jira_public_change</if_matched_group>
     <same_field>jira_author_key</same_field>
     <description>Jira: repeated public/customer access changes by $(jira_author_key)</description>
@@ -374,8 +387,9 @@
     <group>configuration,impact,</group>
   </rule>
 
-  <!-- Project deleted or archived: destructive -->
-  <rule id="126053" level="9">
+  <!-- Project deleted or archived: destructive (same level as a
+       Confluence space deletion) -->
+  <rule id="126053" level="10">
     <if_sid>126000</if_sid>
     <field name="jira_summary" type="pcre2">(?i)\bprojects?\b.{0,40}\b(delet\w*|archiv\w*|trash\w*|purg\w*)\b|\b(delet\w*|archiv\w*|trash\w*|purg\w*)\b.{0,40}\bprojects?\b</field>
     <description>Jira: project deleted or archived by $(jira_author_key): $(jira_summary)</description>
