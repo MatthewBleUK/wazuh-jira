@@ -27,19 +27,27 @@ The script writes one JSON object per line. It flattens nested Jira audit fields
 into collision-safe scalar fields such as `jira_summary`, `jira_category`,
 `jira_author_key`, `jira_object_name`, and `jira_changed_fields`.
 
-Jira Cloud uses `/rest/api/3/auditing/record`. Some older Jira/Data Center
-deployments expose `/rest/auditing/1.0/events`; use that only if your instance
-returns `200 OK` for it.
+The default configuration polls Jira Cloud through the Atlassian API gateway,
+using your site's cloud id (shown at
+`https://<your-site>.atlassian.net/_edge/tenant_info`):
 
 ```bash
-JIRA_AUDIT_PATH=/rest/api/3/auditing/record
+JIRA_AUDIT_PATH=https://api.atlassian.com/ex/jira/<cloud-id>/rest/api/3/auditing/record
 ```
+
+When `JIRA_AUDIT_PATH` is a full URL it is used as the complete request URL;
+`JIRA_BASE_URL` then only labels the `jira_site_host` event field, so keep it
+set to your real site URL. Relative paths are appended to `JIRA_BASE_URL`
+instead: use `/rest/api/3/auditing/record` to poll the site directly, or
+`/rest/auditing/1.0/events` on older Jira/Data Center deployments (only if
+your instance returns `200 OK` for it).
 
 ## Requirements
 
 - Wazuh 4.x manager.
 - A Jira account with the global **Administer Jira** permission.
-- Network access from the Wazuh manager to the Jira base URL.
+- Network access from the Wazuh manager to `api.atlassian.com` (or to the
+  Jira base URL when polling the site directly).
 - One supported auth method:
   - Jira Cloud: email address plus Atlassian API token using Basic auth.
   - Jira Data Center: personal access token using Bearer auth, or Basic auth if
@@ -48,12 +56,12 @@ JIRA_AUDIT_PATH=/rest/api/3/auditing/record
 Quick API test:
 
 ```bash
-curl -s -u '<email-or-user>:<api-token>' \
+curl -s -u '<email>:<api-token>' \
   -H 'Accept: application/json' \
-  'https://<jira-host>/rest/api/3/auditing/record?limit=1'
+  'https://api.atlassian.com/ex/jira/<cloud-id>/rest/api/3/auditing/record?limit=1'
 ```
 
-Bearer/PAT test:
+Bearer/PAT test (Data Center, direct site URL):
 
 ```bash
 curl -s -H 'Authorization: Bearer <pat-or-token>' \
