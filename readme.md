@@ -241,6 +241,21 @@ matching event within the timeframe.
 Severity levels are aligned with the Confluence `127xxx` ruleset so the same
 event class scores the same level in both products.
 
+## Dashboard
+
+`dashboard/jira-audit-dashboard.ndjson` is a ready-to-import "Jira Audit
+Events" dashboard for OpenSearch Dashboards 2.19 (Wazuh dashboard). It covers
+overview KPIs and severity trends, top actors/summaries, security detections
+with a MITRE ATT&CK table, authentication and brute-force correlations,
+permission/exposure changes, export/backup collection, audit-log integrity,
+user/group lifecycle, a category-fallback canary, and a rule coverage
+reference. Every panel is scoped by a dashboard-level
+`data.jira_integration:jira` filter.
+
+Import via **Dashboards Management → Saved objects → Import** (requires the
+`wazuh-alerts-*` index pattern). To customize, edit
+`dashboard/generate_dashboard.py` and re-run it to regenerate the NDJSON.
+
 ## Operational Notes
 
 - The first run imports up to `JIRA_BACKFILL_HOURS` of history.
