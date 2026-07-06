@@ -8,9 +8,9 @@ Source: wazuh-jira integration (/var/ossec/integrations/jira_events.py, polled e
 Flat fields emitted by the poller power the panels:
   data.jira_summary           human-readable audit summary (what the rules match on)
   data.jira_category          Jira audit category (e.g. "user management", "permissions")
-  data.jira_author_name       display name of the acting user
-  data.jira_author_key        actor key (Data Center; Cloud may only carry account_id)
-  data.jira_author_account_id actor account id (Cloud)
+  data.jira_author_key        actor key — the only actor identity Jira Cloud audit
+                              records carry (Cloud never emits a display name)
+  data.jira_author_account_id actor account id (same value as the key on Cloud)
   data.jira_src_ip            source IP when the audit record carries one
   data.jira_object_type/name  primary object acted on
   data.jira_site_host         Jira site host
@@ -220,7 +220,7 @@ CORR_IDS = "rule.id:(126013 or 126014 or 126031 or 126032 or 126074)"
 # ============================================================================
 # ---- Overview / KPIs -------------------------------------------------------
 metric("jira-total", "[Jira Audit] Total Events", count_metric())
-metric("jira-actors", "[Jira Audit] Distinct Actors", cardinality(f"{D}jira_author_name", "Actors"), color_to=500)
+metric("jira-actors", "[Jira Audit] Distinct Actors", cardinality(f"{D}jira_author_key", "Actors"), color_to=500)
 metric("jira-categories", "[Jira Audit] Distinct Categories", cardinality(f"{D}jira_category", "Categories"), color_to=50)
 metric("jira-high", "[Jira Audit] High Severity (L≥10)", count_metric(), color_to=50,
        filt=[level_gte(10, "L>=10")])
@@ -240,10 +240,10 @@ markdown("jira-md-activity", "[Jira Audit] md Activity",
 table("jira-top-actions", "[Jira Audit] Top Audit Summaries (summary · category)",
       [bucket(f"{D}jira_summary", 30, "Summary", "2"),
        bucket(f"{D}jira_category", 1, "Category", "3")], 15)
-table("jira-top-actors", "[Jira Audit] Top Actors (name · key)",
-      [bucket(f"{D}jira_author_name", 25, "Actor", "2"),
-       bucket(f"{D}jira_author_key", 1, "Key", "3")], 15)
-hbar("jira-actor-bar", "[Jira Audit] Most Active Actors", f"{D}jira_author_name", "Actor", 15)
+table("jira-top-actors", "[Jira Audit] Top Actors (key · top category)",
+      [bucket(f"{D}jira_author_key", 25, "Actor", "2"),
+       bucket(f"{D}jira_category", 1, "Top category", "3")], 15)
+hbar("jira-actor-bar", "[Jira Audit] Most Active Actors", f"{D}jira_author_key", "Actor", 15)
 table("jira-rules", "[Jira Audit] Rules Fired (ID · Description · Level)",
       [bucket("rule.id", 40, "Rule ID", "2"),
        bucket("rule.description", 1, "Description", "3"),
@@ -275,7 +275,7 @@ metric("jira-sec-audit", "Audit log tampering (126060)", count_metric(), color_t
 timeline_filters("jira-sec-timeline", "[Jira Audit] Detections Over Time", DETECTIONS)
 pie_filters("jira-sec-pie", "[Jira Audit] Detection Mix", DETECTIONS)
 table("jira-sec-table", "[Jira Audit] High-Severity Events (L≥8): actor · summary · detection",
-      [bucket(f"{D}jira_author_name", 30, "Actor", "2"),
+      [bucket(f"{D}jira_author_key", 30, "Actor", "2"),
        bucket(f"{D}jira_summary", 1, "Summary", "3"),
        bucket("rule.description", 1, "Detection", "4"),
        bucket("rule.level", 1, "Level", "5")], 20, filt=[level_gte(8, "L>=8")])
@@ -295,12 +295,12 @@ metric("jira-auth-bf-acct", "Brute force: account (126013)", count_metric(), col
 metric("jira-auth-bf-ip", "Brute force: source IP (126014)", count_metric(), color_to=5,
        filt=[phrase("rule.id", "126014", "bf source ip")])
 table("jira-auth-fail", "[Jira Audit] Failed Logins (actor · src IP)",
-      [bucket(f"{D}jira_author_name", 20, "Actor", "2"),
+      [bucket(f"{D}jira_author_key", 20, "Actor", "2"),
        bucket(f"{D}jira_src_ip", 1, "Source IP", "3")], 10,
       filt=[kql("rule.id:(126010 or 126012)", "failed auth")])
 table("jira-src-ip", "[Jira Audit] Source IPs (when present)",
       [bucket(f"{D}jira_src_ip", 20, "Source IP", "2"),
-       bucket(f"{D}jira_author_name", 1, "Top actor", "3")], 10)
+       bucket(f"{D}jira_author_key", 1, "Top actor", "3")], 10)
 
 # ---- Permissions & exposure ------------------------------------------------
 markdown("jira-md-perms", "[Jira Audit] md Permissions",
@@ -309,7 +309,7 @@ markdown("jira-md-perms", "[Jira Audit] md Permissions",
          "fires on repeated changes by one actor (≥5 in 10 min)._")
 timeline_filters("jira-perm-timeline", "[Jira Audit] Permission & Exposure Changes Over Time", PERMS)
 table("jira-perm-actor", "[Jira Audit] Permission Changes by Actor (actor · summary)",
-      [bucket(f"{D}jira_author_name", 20, "Actor", "2"),
+      [bucket(f"{D}jira_author_key", 20, "Actor", "2"),
        bucket(f"{D}jira_summary", 2, "Top changes", "3")], 10,
       filt=[kql(PERM_IDS, "perm changes")])
 
@@ -324,7 +324,7 @@ metric("jira-export-bulk", "Bulk export corr (126074)", count_metric(), color_to
        filt=[phrase("rule.id", "126074", "bulk export")])
 timeline_filters("jira-export-timeline", "[Jira Audit] Export/Backup Over Time", EXPORTS)
 table("jira-export-actor", "[Jira Audit] Export Activity by Actor (actor · summary)",
-      [bucket(f"{D}jira_author_name", 20, "Actor", "2"),
+      [bucket(f"{D}jira_author_key", 20, "Actor", "2"),
        bucket(f"{D}jira_summary", 2, "Top exports", "3")], 10,
       filt=[kql(EXPORT_IDS, "exports")])
 
@@ -341,7 +341,7 @@ metric("jira-audit-view", "Audit log viewed (126062)", count_metric(), color_to=
        filt=[phrase("rule.id", "126062", "audit viewed")])
 timeline_filters("jira-audit-timeline", "[Jira Audit] Audit Log Activity Over Time", AUDIT)
 table("jira-audit-actor", "[Jira Audit] Audit Log Activity by Actor (actor · summary)",
-      [bucket(f"{D}jira_author_name", 15, "Actor", "2"),
+      [bucket(f"{D}jira_author_key", 15, "Actor", "2"),
        bucket(f"{D}jira_summary", 2, "Activity", "3")], 10,
       filt=[kql("rule.id:(126060 or 126061 or 126062)", "audit log activity")])
 
@@ -352,7 +352,7 @@ markdown("jira-md-users", "[Jira Audit] md Users",
 timeline_filters("jira-users-timeline", "[Jira Audit] User & Group Changes Over Time", USERS)
 table("jira-users-table", "[Jira Audit] User/Group Changes (summary · actor)",
       [bucket(f"{D}jira_summary", 20, "Change", "2"),
-       bucket(f"{D}jira_author_name", 1, "Actor", "3")], 10,
+       bucket(f"{D}jira_author_key", 1, "Actor", "3")], 10,
       filt=[kql("rule.id:(126021 or 126045 or 126046)", "user/group changes")])
 
 # ---- Fallback canary -------------------------------------------------------
@@ -366,51 +366,6 @@ table("jira-fallback-table", "[Jira Audit] Unclassified Summaries (summary · ca
       [bucket(f"{D}jira_summary", 30, "Summary", "2"),
        bucket(f"{D}jira_category", 1, "Category", "3")], 15,
       filt=[kql("rule.id:(126090 or 126091)", "fallback")])
-
-# ---- Coverage reference ----------------------------------------------------
-markdown("jira-coverage", "[Jira Audit] Rule Reference (1/2)",
-         "### 🗺️ Rule & Coverage Reference\n"
-         "Layered ruleset — base rule 126000 guarantees **no event is missed**; the most "
-         "specific rule in each family wins (file order).\n\n"
-         "| Rule | Level | Meaning |\n|---|---|---|\n"
-         "| **126000** | 3 | Base — every Jira audit event (no-miss catch-all) |\n"
-         "| **126010 / 126011** | 8 / 9 | Websudo (secure admin) failed / granted |\n"
-         "| **126012** | 5 | Single failed login |\n"
-         "| **126013 / 126014** | **10** | Brute force: same account / same source IP |\n"
-         "| **126015** | 3 | Successful login / logout |\n"
-         "| **126016** | **11** | MFA/2FA/SSO/SAML disabled or removed |\n"
-         "| **126017** | 10 | Authentication/password config changed |\n"
-         "| **126020 / 126021** | **12** | Admin privilege granted / added to admin group |\n"
-         "| **126022** | 7 | Admin privilege removed |\n"
-         "| **126023 / 126024** | **11** / 5 | Public/anonymous exposure enabled / removed |\n"
-         "| **126025** | 8 | Portal / help center / knowledge base access changed |\n"
-         "| **126026 / 126027** | 6 / 10 | Permission scheme reduced / changed or broadened |\n"
-         "| **126028** | 8 | Application access changed |\n"
-         "| **126029 / 126030** | 6 / 7 | Project role membership / generic permission changed |")
-markdown("jira-coverage-2", "[Jira Audit] Rule Reference (2/2)",
-         "### &nbsp;\n"
-         "Category tiers backstop the long tail; correlation rules escalate repeated "
-         "behavior by the same actor.\n\n"
-         "| Rule | Level | Meaning |\n|---|---|---|\n"
-         "| **126031 / 126032** | 10 | Repeated permission / public-access changes (corr) |\n"
-         "| **126040 / 126041** | 10 / 6 | App/webhook/OAuth trust added / removed |\n"
-         "| **126042 / 126043** | 10 / 5 | API token created / revoked |\n"
-         "| **126045 / 126046** | 6 / 5 | Group membership / user lifecycle |\n"
-         "| **126050-126056** | 5-7 | Workflow, schemes, boards, projects, dark features, mail |\n"
-         "| **126053** | 10 | Project deleted or archived |\n"
-         "| **126060 / 126061 / 126062** | **11** / 7 / 5 | Audit log config changed / exported / viewed |\n"
-         "| **126070 / 126071** | **12** / 8 | Full data export or backup / Assets export |\n"
-         "| **126072 / 126073** | 8 / 6 | Restore or import / issue export |\n"
-         "| **126074** | **12** | Bulk export by one actor (corr, ≥5 in 10 min) |\n"
-         "| **126090 / 126091** | 6 / 5 | Category fallback tiers (security / admin) |")
-markdown("jira-coverage-notes", "[Jira Audit] Coverage Notes",
-         "**Notes:**\n"
-         "- Correlation `frequency=\"N\"` fires on the (N+2)th event; `ignore` suppresses per-rule, "
-         "not per-actor (anti-storm trade-off).\n"
-         "- `jira_author_key` is emitted on Data Center; Cloud events may only carry "
-         "`jira_author_account_id` — swap `same_field` in `126-jira_rules.xml` if needed.\n"
-         "- Source IP panels populate only when audit records carry an address (mostly "
-         "login events).")
 
 # ============================================================================
 # DASHBOARD LAYOUT  (48-col grid; rows expand to absolute y coordinates)
@@ -453,9 +408,6 @@ rows = [
     # Fallback canary
     (3,  [("jira-md-fallback", 0, 48)]),
     (12, [("jira-fallback-timeline", 0, 24), ("jira-fallback-table", 24, 24)]),
-    # Coverage
-    (30, [("jira-coverage", 0, 24), ("jira-coverage-2", 24, 24)]),
-    (9,  [("jira-coverage-notes", 0, 48)]),
 ]
 
 layout, y = [], 0

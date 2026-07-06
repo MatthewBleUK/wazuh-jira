@@ -248,9 +248,10 @@ Events" dashboard for OpenSearch Dashboards 2.19 (Wazuh dashboard). It covers
 overview KPIs and severity trends, top actors/summaries, security detections
 with a MITRE ATT&CK table, authentication and brute-force correlations,
 permission/exposure changes, export/backup collection, audit-log integrity,
-user/group lifecycle, a category-fallback canary, and a rule coverage
-reference. Every panel is scoped by a dashboard-level
-`data.jira_integration:jira` filter.
+user/group lifecycle, and a category-fallback canary. Actor panels key on
+`jira_author_key` — the only actor identity Jira Cloud audit records carry.
+Every panel is scoped by a dashboard-level `data.jira_integration:jira`
+filter.
 
 Import via **Dashboards Management → Saved objects → Import** (requires the
 `wazuh-alerts-*` index pattern). To customize, edit
